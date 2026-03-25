@@ -11,6 +11,7 @@ package b1marcadorjuego;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Marcador {
 
@@ -26,19 +27,25 @@ public class Marcador {
     }
 
     // localiza el jugador con la puntación más alta
-    private Jugador buscaGanador(){
-        if (jugadores.length == 0){
-            return null;
-        }
-        Jugador ganador = jugadores[0];
-        for (Jugador j : jugadores) {
-            if (j.getPuntuacion() > ganador.getPuntuacion()) {
-                ganador = j;
-            }
-        }
-        return ganador;
+//    private Jugador buscaGanador(){
+//        if (jugadores.length == 0){
+//            return null;
+//        }
+//        Jugador ganador = jugadores[0];
+//        for (Jugador j : jugadores) {
+//            if (j.getPuntuacion() > ganador.getPuntuacion()) {
+//                ganador = j;
+//            }
+//        }
+//        return ganador;
+//    }
+    // busqueda más avanzada con stream
+    private Jugador buscaGanador() {
+        return Arrays.stream(jugadores)
+                .max(Comparator.comparingInt(Jugador::getPuntuacion))
+                .orElse(null);
     }
-    
+
     // 2. Id del jugador con mayor puntuación
     public int idGanador() {
         Jugador ganador = buscaGanador();
@@ -58,28 +65,41 @@ public class Marcador {
     }
 
     // 5. Puntuación media double
+//    public double puntuacionMedia() {
+//        int total = 0;
+//        for (Jugador j : jugadores) {
+//            total += j.getPuntuacion();
+//        }
+//        return (double) total / NUM_JUGADORES;
+//    }
+    // 5. puntuacionMedia() más avanzada con stream + mapToInt + average() 
     public double puntuacionMedia() {
-        int total = 0;
-        for (Jugador j : jugadores) {
-            total += j.getPuntuacion();
-        }
-        return (double) total / NUM_JUGADORES;
+        return Arrays.stream(jugadores)
+                .mapToInt(Jugador::getPuntuacion)
+                .average()
+                .orElse(0.0);
     }
 
     // 6. Ordenar de mayor a menor puntuación, criterio secundario id ascendente
     public void ordenarPorPuntuacion() {
         Arrays.sort(jugadores,
-            Comparator.comparingInt(Jugador::getPuntuacion).reversed()
-                      .thenComparingInt(Jugador::getId)
+                Comparator.comparingInt(Jugador::getPuntuacion).reversed()
+                        .thenComparingInt(Jugador::getId)
         );
     }
 
     // 7. Mostrar marcador completo
+//    public String mostrarMarcador() {
+//        StringBuilder sb = new StringBuilder();
+//        for (Jugador j : jugadores) {
+//            sb.append(j.toString()).append("\n");
+//        }
+//        return sb.toString();
+//    }
+    // alternativa con uso de stream
     public String mostrarMarcador() {
-        StringBuilder sb = new StringBuilder();
-        for (Jugador j : jugadores) {
-            sb.append(j.toString()).append("\n");
-        }
-        return sb.toString();
+        return Arrays.stream(jugadores)
+                .map(Jugador::toString)
+                .collect(Collectors.joining("\n"));
     }
 }
